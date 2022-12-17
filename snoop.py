@@ -47,17 +47,15 @@ if int(platform.python_version_tuple()[1]) >= 8:
 else:
     python3_8 = False
 
-Android = True if hasattr(sys, 'getandroidapilevel') else False
+Android = bool(hasattr(sys, 'getandroidapilevel'))
 
 try:
-    if os.environ.get('LANG') is not None and 'ru' in os.environ.get('LANG'):
-        rus_unix = True
-    else:
-        rus_unix = False
-    if sys.platform == 'win32' and "1251" in locale.setlocale(locale.LC_ALL):
-        rus_windows = True
-    else:
-        rus_windows = False
+    rus_unix = os.environ.get('LANG') is not None and 'ru' in os.environ.get(
+        'LANG'
+    )
+    rus_windows = sys.platform == 'win32' and "1251" in locale.setlocale(
+        locale.LC_ALL
+    )
 except Exception:
     rus_unix = False
     rus_windows = False
@@ -83,21 +81,34 @@ __sb = "demo" if demo_full == 'd' else "full"
 
 if sys.platform == 'win32': OS_ = f"ru Snoop for Windows {_sb} {__sb}"
 elif Android: OS_ = f"ru Snoop for Termux source {__sb}"
-elif sys.platform != 'win32': OS_ = f"ru Snoop for GNU/Linux {_sb} {__sb}"
+else:
+    OS_ = f"ru Snoop for GNU/Linux {_sb} {__sb}"
 
 version = f"{vers}_{OS_}"
 
-print(Fore.CYAN + "#Примеры:" + Style.RESET_ALL)
+print(f"{Fore.CYAN}#Примеры:{Style.RESET_ALL}")
 if sys.platform == 'win32':
     print(Fore.CYAN + " cd с:\\<path>\\snoop")
-    print(Fore.CYAN + " python snoop.py --help" + Style.RESET_ALL, "#справка")
-    print(Fore.CYAN + " python snoop.py nickname" + Style.RESET_ALL, "#поиск user-a")
-    print(Fore.CYAN + " python snoop.py --module" + Style.RESET_ALL, "#задействовать плагины")
+    print(f"{Fore.CYAN} python snoop.py --help{Style.RESET_ALL}", "#справка")
+    print(
+        f"{Fore.CYAN} python snoop.py nickname{Style.RESET_ALL}",
+        "#поиск user-a",
+    )
+    print(
+        f"{Fore.CYAN} python snoop.py --module{Style.RESET_ALL}",
+        "#задействовать плагины",
+    )
 else:
-    print(Fore.CYAN + " cd ~/snoop")
-    print(Fore.CYAN + " python3 snoop.py --help" + Style.RESET_ALL, "#справка")
-    print(Fore.CYAN + " python3 snoop.py nickname" + Style.RESET_ALL, "#поиск user-a")
-    print(Fore.CYAN + " python3 snoop.py --module" + Style.RESET_ALL, "#задействовать плагины")
+    print(f"{Fore.CYAN} cd ~/snoop")
+    print(f"{Fore.CYAN} python3 snoop.py --help{Style.RESET_ALL}", "#справка")
+    print(
+        f"{Fore.CYAN} python3 snoop.py nickname{Style.RESET_ALL}",
+        "#поиск user-a",
+    )
+    print(
+        f"{Fore.CYAN} python3 snoop.py --module{Style.RESET_ALL}",
+        "#задействовать плагины",
+    )
 console.rule(characters="=", style="cyan")
 print("")
 
@@ -111,7 +122,7 @@ date_up = int(time.mktime(ts))  #дата в секундах с начала э
 up1 = time.gmtime(date_up)
 Do = (f"{up1.tm_mday}/{up1.tm_mon}/{up1.tm_year}")  #в UTC (-3 часа)
 # Чек.
-if time.time() > int(date_up):
+if time.time() > date_up:
     print(Style.BRIGHT + Fore.RED + "Версия Snoop " + version + " деактивирована согласно лицензии.")
     sys.exit()
 
@@ -128,8 +139,7 @@ def DB(db_base):
             db = base64.b64decode(db)
             db = db[::-1]
             db = base64.b64decode(db)
-            trinity = json.loads(db.decode("UTF-8"))
-            return trinity
+            return json.loads(db.decode("UTF-8"))
     except Exception:
         print(Style.BRIGHT + Fore.RED + "Упс, что-то пошло не так..." + Style.RESET_ALL)
         sys.exit()
@@ -206,7 +216,7 @@ def print_found_country(websites_names, url, country_Emoj_Code, response_time=Fa
     if color is True and sys.platform == 'win32':
         print(f"{Style.RESET_ALL}{Style.BRIGHT}{Fore.CYAN}{country_Emoj_Code}" \
               f"{Fore.GREEN}  {websites_names}:{Style.RESET_ALL}{Fore.GREEN} {url}")
-    elif color is True and sys.platform != 'win32':
+    elif color is True:
         print(f"{Style.RESET_ALL}{country_Emoj_Code}{Style.BRIGHT}{Fore.GREEN}  {websites_names}: " \
               f"{Style.RESET_ALL}{Style.DIM}{Fore.GREEN}{url}")
     else:

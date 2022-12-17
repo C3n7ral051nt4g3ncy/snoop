@@ -172,13 +172,14 @@ def module3():
                         yalist = [avatar_html, otzyv, market, music, dzen, qu]
 
                     for webopen in yalist:
-                        if webopen == music and Ya == '3':
-                            continue
-                        else:
-                            if "arm" in platform.platform(aliased=True, terse=0) or "aarch64" in platform.platform(aliased=True, terse=0):
-                                pass
-                            else:
-                                webbrowser.open(webopen)
+                        if (
+                            (webopen != music or Ya != '3')
+                            and "arm"
+                            not in platform.platform(aliased=True, terse=0)
+                            and "aarch64"
+                            not in platform.platform(aliased=True, terse=0)
+                        ):
+                            webbrowser.open(webopen)
             ravno()
             azS.clear()
 
@@ -267,12 +268,10 @@ def module2():
             print(Style.BRIGHT + Fore.RED + "Выход")
             sys.exit()
 
-# Help.
         elif Vgeo == "help":
             snoopbanner.help_vgeocoder_vgeo()
             helpend()
 
-# выбрать файл с геокоординатами.
         elif Vgeo == '1':
             float_patern = '[-]? (?: (?: \d* \. \d+ ))'
             rx = re.compile(float_patern, re.VERBOSE)
@@ -293,10 +292,10 @@ def module2():
                 try:
                     with open(put, "r", encoding="utf8") as geo:
 # Выборка геокоординат.
-                        for line in geo.readlines():
+                        for line in geo:
                             s = rx.findall(line)
                             s_bad = not rx.findall(line)
-                            wZ1bad.append(str(line) if s_bad is True else "")
+                            wZ1bad.append(str(line) if s_bad else "")
                             if len(s) == 0 or len(s) == 1 or len(s) == 3 or len(s) == 5 or len(s) >= 7:
                                 wZ1bad.append(', '.join(s))
                                 continue
@@ -309,7 +308,7 @@ def module2():
                             except Exception:
                                 pass
                             try:
-                                coord.append(list(map(float, s[0:2]))) if s[0:2] else ""
+                                coord.append(list(map(float, s[:2]))) if s[:2] else ""
                             except Exception:
                                 pass
 # Удалили дубли.
@@ -333,16 +332,14 @@ def module2():
                       "\033[36m└──\033[36m[\033[0m\033[31;1mq\033[0m\033[36m] --> Выход\033[0m\n")
                 rGeo = input()
 
-                if rGeo == "q" or rGeo == '1' or rGeo == '2':
+                if rGeo in ["q", '1', '2']:
                     break
-                else:
-                    print(Style.BRIGHT + Fore.RED + "└──Неверный выбор" + Style.RESET_ALL)
-                    ravno()
+                print(Style.BRIGHT + Fore.RED + "└──Неверный выбор" + Style.RESET_ALL)
+                ravno()
 
             if rGeo == "q":
                 print(Style.BRIGHT + Fore.RED + "Выход")
                 break
-                sys.exit()
             if rGeo == '1':
                 timestartR = time.time()
                 with console.status("[green bold]Ожидайте, идёт геокодирование...", spinner=random.choice(["dots", "dots12"])):
@@ -357,15 +354,19 @@ def module2():
 # 1. Простой метод.
                         try:
                             if rGeo == '1':
-                                folium.Marker(location=geo_sh_do, popup="Ш:" + str(geo_sh_do[0]) + \
-                                              " Д:" + str(geo_sh_do[1]), icon=folium.Icon(color='blue', icon='ok-sign')).add_to(marker_cluster)
-# 2. Подробный метод.
+                                folium.Marker(
+                                    location=geo_sh_do,
+                                    popup=f"Ш:{str(geo_sh_do[0])} Д:{str(geo_sh_do[1])}",
+                                    icon=folium.Icon(
+                                        color='blue', icon='ok-sign'
+                                    ),
+                                ).add_to(marker_cluster)
                         except Exception:
                             continue
 # Сохранение карты osm.
                     namemaps = time.strftime("%d_%m_%Y_%H_%M_%S", time_date)
                     namemaps = (f'Maps_{namemaps}.html')
-                    mapsme = str(dirresults + "/results/plugins/ReverseVgeocoder/" + str(namemaps))
+                    mapsme = str(f"{dirresults}/results/plugins/ReverseVgeocoder/{str(namemaps)}")
                     maps.save(mapsme)
 # Обработка bad (извлечение вложенного списка).
                     wZ1bad_raw = []
@@ -391,12 +392,16 @@ def module2():
                       f"\033[36;1m{dirresults}{path_dir}{hvostR}[.txt.html.csv]")
                 try:
                     if lcoord >= 1:
-                        webbrowser.open(str("file://" + mapsme))
+                        webbrowser.open(str(f"file://{mapsme}"))
                 except Exception:
                     pass
 # Запись в txt.
                 try:
-                    file_txtR = open(dirresults + "/results/plugins/ReverseVgeocoder/" + str(hvostR) + ".txt", "w", encoding="utf-8")
+                    file_txtR = open(
+                        f"{dirresults}/results/plugins/ReverseVgeocoder/{str(hvostR)}.txt",
+                        "w",
+                        encoding="utf-8",
+                    )
                 except Exception:
                     pass
                 file_txtR.write(f"Полученные и обработанные данные из файла '{hvostR}' ({lcoord}):\n")
@@ -414,7 +419,6 @@ def module2():
                 print("\033[31;1m└──В demo version этот метод плагина недоступен\033[0m\n")
                 snoopbanner.donate()
             break
-            sys.exit()
         else:
             print(Style.BRIGHT + Fore.RED + "└──Неверный выбор" + Style.RESET_ALL)
             ravno()
@@ -433,10 +437,7 @@ def module1():
         except Exception:
             res4 = "-"
         try:
-            if ":" not in res46[-1][4][0]:
-                res6 = "-"
-            else:
-                res6 = res46[-1][4][0]
+            res6 = "-" if ":" not in res46[-1][4][0] else res46[-1][4][0]
         except Exception:
             res6 = "-"
         #print(res46)
@@ -475,8 +476,7 @@ def module1():
         print(Style.BRIGHT + Fore.RED + "Выход")
         sys.exit()
 
-# проверка данных.
-    elif dip == '--file' or dip == '-f':
+    elif dip in ['--file', '-f']:
         while True:
             print("""\033[36m├──Выберите тип поиска
 │
@@ -492,14 +492,11 @@ def module1():
             if dipbaza == "q":
                 print("\033[31;1mВыход\033[0m")
                 sys.exit(0)
-# Справка.
             elif dipbaza == "help":
                 snoopbanner.geo_ip_domain()
                 helpend()
 
-# Оффлайн поиск.
-# Открываем GeoCity.
-            elif dipbaza == "2" or dipbaza == "3":
+            elif dipbaza in ["2", "3"]:
                 while True:
                     print("\033[31;1m└──В demo version этот метод плагина недоступен\033[0m\n")
                     snoopbanner.donate()
@@ -507,29 +504,22 @@ def module1():
 
                 break
 
-# Онлайн поиск.
             elif dipbaza == "1":
                 print("\033[31;1m└──В demo version этот метод плагина недоступен\033[0m\n")
                 snoopbanner.donate()
                 break
 
-# Неверный выбор ключа при оффлайн/онлайн поиске. Выход.
             else:
                 print(Style.BRIGHT + Fore.RED + "└──Неверный выбор" + Style.RESET_ALL)
                 ravno()
 
-# одиночный запрос.
     else:
         if dip == "":
-            pass
             uu3 = dip
         else:
             u = urlparse(dip).hostname
             uu3 = dip
-            if bool(u) is False:
-                dip = dip.split("/")[0].strip()
-            else:
-                dip = u.replace("www.", "").strip()
+            dip = u.replace("www.", "").strip() if bool(u) else dip.split("/")[0].strip()
         session = requests.Session()
         url2 = 'https://freegeoip.app/json/{}'.format(dip)
         try:
